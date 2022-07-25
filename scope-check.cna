@@ -53,6 +53,6 @@ on beacon_initial {
 	if($internal in @IParray){
 		$scopeFlag = "In Scope";
 	}
-  say("New Beacon IP: " . $internal . " - " . $scopeFlag);
+  	say("New Beacon IP: " . $internal . " - " . $scopeFlag);
 	bnote($1,$scopeFlag . " - Established: " . formatDate('MM/dd/yyyy HH:mm:ss (z)'));
 }
