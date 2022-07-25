@@ -1,0 +1,58 @@
+###################################################
+# Aggressor Script to check intial beacons against a
+# an inscope list of IP addresses and label the beacon
+# 
+# Created by Nathan Spidle
+###################################################
+
+@IParray = @();
+
+menubar("Beacon Scoper", "beacon_scoper");
+
+popup beacon_scoper {
+	item "&Load Scope List" {
+		scopeList();
+	}
+}
+
+sub scopeList {
+	local('$dialog %defaults');
+	$dialog = dialog("Load In Scope IPs", %defaults, &scopeCallback);
+
+	dialog_description($dialog, "Choose your scope IP list, one IP per line,");
+	drow_file($dialog, "scope", "Scope List: ");
+	dbutton_action($dialog, "Load");
+	dialog_show($dialog);
+}
+
+sub scopeCallback {
+	say("loading IPs");
+	say($3["scope"]);
+	$scopeList = $3["scope"];
+	$scopeList_file = openf($scopeList);
+	
+	say($scopeList_file);
+	while $ip (readln($scopeList_file))
+	{
+		#say($ip);
+		add(@IParray, $ip, -1);
+	}
+
+  #uncomment to list in the CS chat log the IP addresses that were loaded
+	#say("Loaded:" . @IParray . " addresses");
+  
+	closef($scopeList_File);
+}
+
+
+on beacon_initial {
+	$info = beacon_info($1);
+	$internal = $info['internal'];
+	$scopeFlag = "NOT IN SCOPE";
+
+	if($internal in @IParray){
+		$scopeFlag = "In Scope";
+	}
+  say("New Beacon IP: " . $internal . " - " . $scopeFlag);
+	bnote($1,$scopeFlag . " - Established: " . formatDate('MM/dd/yyyy HH:mm:ss (z)'));
+}
